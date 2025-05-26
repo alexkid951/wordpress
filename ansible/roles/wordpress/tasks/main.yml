@@ -1,0 +1,31 @@
+- name: Installer les paquets nécessaires
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - apache2
+    - php
+    - php-mysql
+    - mysql-client
+    - unzip
+    - curl
+
+- name: Télécharger WordPress
+  get_url:
+    url: https://wordpress.org/latest.zip
+    dest: /tmp/wordpress.zip
+
+- name: Décompresser WordPress
+  unarchive:
+    src: /tmp/wordpress.zip
+    dest: /var/www/html/
+    remote_src: yes
+
+- name: Définir les permissions
+  file:
+    path: /var/www/html/wordpress
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data

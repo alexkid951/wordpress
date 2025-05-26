@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        ANSIBLE_HOST_KEY_CHECKING = 'False'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://ton-repo.git' // remplace par ton repo
+            }
+        }
+
+        stage('Déployer MySQL') {
+            steps {
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_mysql.yml'
+            }
+        }
+
+        stage('Déployer WordPress') {
+            steps {
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_wordpress.yml'
+            }
+        }
+
+        stage('Copier les fichiers HTML/CSS/JS') {
+            steps {
+                sh '''
+                    ansible wordpress -i ansible/hosts -m copy -a "src=web-content/ dest=/var/www/html/wordpress/ owner=www-data group=www-data mode=0644" -b
+                '''
+            }
+        }
+
+        stage('Déployer NGINX Load Balancer') {
+            steps {
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_setup_nginx_lb.yml'
+            }
+        }
+
+        stage('Vérification du site via LB') {
+            steps {
+                sh 'curl -s http://192.168.56.50 | grep -i "wordpress"'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Déploiement complet réussi !'
+        }
+        failure {
+            echo '❌ Échec du déploiement.'
+        }
+    }
+}

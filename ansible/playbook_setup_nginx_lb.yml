@@ -1,0 +1,5 @@
+- name: Configurer NGINX Load Balancer
+  hosts: lb
+  become: true
+  roles:
+    - nginx_lb

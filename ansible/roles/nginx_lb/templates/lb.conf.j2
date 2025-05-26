@@ -1,0 +1,13 @@
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://backend;
+    }
+}
+
+upstream backend {
+    server 192.168.56.30;
+    server 192.168.56.31;
+    server 192.168.56.32;
+}

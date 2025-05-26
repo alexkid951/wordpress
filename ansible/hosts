@@ -1,0 +1,9 @@
+[wordpress]
+192.168.56.30
+192.168.56.31
+192.168.56.32
+
+[all:vars]
+ansible_user=vagrant  # ou ton utilisateur
+ansible_ssh_private_key_file=~/.ssh/id_rsa  # adapte si besoin
+ansible_python_interpreter=/usr/bin/python3
