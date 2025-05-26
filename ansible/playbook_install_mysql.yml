@@ -1,29 +1,34 @@
-- name: Installer MySQL Server
-  apt:
-    name: mysql-server
-    state: present
-    update_cache: yes
+---
+- name: Installer MySQL Server et configurer la base
+  hosts: mysql
+  become: yes
+  tasks:
+    - name: Installer MySQL Server
+      apt:
+        name: mysql-server
+        state: present
+        update_cache: yes
 
-- name: Créer base de données WordPress
-  mysql_db:
-    name: wordpress
-    state: present
+    - name: Créer base de données WordPress
+      mysql_db:
+        name: wordpress
+        state: present
 
-- name: Créer un utilisateur wordpress
-  mysql_user:
-    name: wp_user
-    password: wp_pass
-    priv: 'wordpress.*:ALL'
-    host: '%'
-    state: present
+    - name: Créer un utilisateur wordpress
+      mysql_user:
+        name: wp_user
+        password: wp_pass
+        priv: 'wordpress.*:ALL'
+        host: '%'
+        state: present
 
-- name: Modifier la config pour accepter les connexions externes
-  lineinfile:
-    path: /etc/mysql/mysql.conf.d/mysqld.cnf
-    regexp: '^bind-address'
-    line: 'bind-address = 0.0.0.0'
+    - name: Modifier la config pour accepter les connexions externes
+      lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: '^bind-address'
+        line: 'bind-address = 0.0.0.0'
 
-- name: Redémarrer MySQL
-  service:
-    name: mysql
-    state: restarted
+    - name: Redémarrer MySQL
+      service:
+        name: mysql
+        state: restarted
