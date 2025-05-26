@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://ton-repo.git' // remplace par ton repo
+                git 'https://github.com/alexkid951/wordpress.git' // remplace par ton repo
             }
         }
 
