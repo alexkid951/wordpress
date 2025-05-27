@@ -1,1 +1,19 @@
+---
+# ansible/roles/wordpress/defaults/main.yml
+
+web_pkgs_redhat:
+  - httpd
+  - php
+  - php-mysqlnd
+  - mariadb
+  - unzip
+  - curl
+
+web_pkgs_debian:
+  - apache2
+  - php
+  - php-mysql
+  - mysql-client
+  - unzip
+  - curl
 
