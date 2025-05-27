@@ -1,52 +1,35 @@
 ---
-- name: Installer et configurer WordPress
-  hosts: wordpress
-  become: yes
-  vars:
-    web_pkgs_redhat:
-      - httpd
-      - php
-      - php-mysqlnd
-      - mariadb
-      - unzip
-      - curl
-    web_pkgs_debian:
-      - apache2
-      - php
-      - php-mysql
-      - mysql-client
-      - unzip
-      - curl
+# roles/wordpress/tasks/main.yml
+# Tâches pour installer et configurer WordPress
 
-  tasks:
-    - name: Installer les paquets web (cross-distro)
-      package:
-        name: "{{ (ansible_os_family == 'RedHat') | ternary(web_pkgs_redhat, web_pkgs_debian) }}"
-        state: present
-        update_cache: yes
+- name: Installer les paquets web (cross-distro)
+  package:
+    name: "{{ (ansible_os_family == 'RedHat') | ternary(web_pkgs_redhat, web_pkgs_debian) }}"
+    state: present
+    update_cache: yes
 
-    - name: Démarrer et activer le service web
-      service:
-        name: "{{ (ansible_os_family == 'RedHat') | ternary('httpd', 'apache2') }}"
-        state: started
-        enabled: yes
+- name: Démarrer et activer le service web
+  service:
+    name: "{{ (ansible_os_family == 'RedHat') | ternary('httpd', 'apache2') }}"
+    state: started
+    enabled: yes
 
-    - name: Télécharger WordPress
-      get_url:
-        url: https://wordpress.org/latest.zip
-        dest: /tmp/wordpress.zip
+- name: Télécharger WordPress
+  get_url:
+    url: https://wordpress.org/latest.zip
+    dest: /tmp/wordpress.zip
 
-    - name: Décompresser WordPress
-      unarchive:
-        src: /tmp/wordpress.zip
-        dest: /var/www/html/
-        remote_src: yes
+- name: Décompresser WordPress
+  unarchive:
+    src: /tmp/wordpress.zip
+    dest: /var/www/html/
+    remote_src: yes
 
-    - name: Définir les permissions sur WordPress
-      file:
-        path: /var/www/html/wordpress
-        state: directory
-        recurse: yes
-        owner: "{{ (ansible_os_family == 'RedHat') | ternary('apache', 'www-data') }}"
-        group: "{{ (ansible_os_family == 'RedHat') | ternary('apache', 'www-data') }}"
-        mode: "0755"
+- name: Définir les permissions sur WordPress
+  file:
+    path: /var/www/html/wordpress
+    state: directory
+    recurse: yes
+    owner: "{{ (ansible_os_family == 'RedHat') | ternary('apache', 'www-data') }}"
+    group: "{{ (ansible_os_family == 'RedHat') | ternary('apache', 'www-data') }}"
+    mode: "0755"
