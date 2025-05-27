@@ -1,6 +1,8 @@
----
-# ansible/roles/wordpress/defaults/main.yml
 
+---
+# roles/wordpress/defaults/main.yml
+
+# Paquets pour RHEL/CentOS
 web_pkgs_redhat:
   - httpd
   - php
@@ -9,6 +11,7 @@ web_pkgs_redhat:
   - unzip
   - curl
 
+# Paquets pour Debian/Ubuntu
 web_pkgs_debian:
   - apache2
   - php
@@ -16,4 +19,3 @@ web_pkgs_debian:
   - mysql-client
   - unzip
   - curl
-
