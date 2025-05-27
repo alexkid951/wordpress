@@ -1,15 +1,20 @@
 - name: Installer les paquets nécessaires
-  apt:
-    name: "{{ item }}"
+  yum:
+    name:
+      - httpd
+      - php
+      - php-mysqlnd
+      - mariadb
+      - unzip
+      - curl
     state: present
     update_cache: yes
-  loop:
-    - apache2
-    - php
-    - php-mysql
-    - mysql-client
-    - unzip
-    - curl
+
+- name: Démarrer et activer Apache
+  service:
+    name: httpd
+    state: started
+    enabled: yes
 
 - name: Télécharger WordPress
   get_url:
@@ -27,5 +32,6 @@
     path: /var/www/html/wordpress
     state: directory
     recurse: yes
-    owner: www-data
-    group: www-data
+    owner: apache
+    group: apache
+    mode: "0755"
