@@ -20,3 +20,12 @@
       - mariadb
     state: present
   when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Copier les fichiers web vers le serveur WordPress
+  ansible.builtin.copy:
+    src: ../wordpress/web/
+    dest: /var/www/html/wordpress/
+    owner: www-data   # ou apache selon ta distrib
+    group: www-data
+    mode: '0644'
+    recurse: yes
