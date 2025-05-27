@@ -1,6 +1,12 @@
+---
 - name: Installer MariaDB Server et configurer la base (Red Hat)
   hosts: mysql
   become: yes
+  vars:
+    mysql_root_password: "root_password_secure"      # À remplacer ou à vault-er
+    wp_db_name: "wordpress"
+    wp_db_user: "wp_user"
+    wp_db_pass: "wp_pass"
   tasks:
     - name: Installer MariaDB Server
       yum:
@@ -19,7 +25,39 @@
         name: python3-PyMySQL
         state: present
 
+    # on attend quelques instants que le socket soit disponible
+    - name: Attendre que MySQL écoute sur le port 3306
+      wait_for:
+        port: 3306
+        state: started
+        delay: 5
+        timeout: 30
+
     - name: Créer base de données WordPress
       mysql_db:
-        name: wordpress
+        name: "{{ wp_db_name }}"
         state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Créer un utilisateur WordPress avec privilèges
+      mysql_user:
+        name: "{{ wp_db_user }}"
+        password: "{{ wp_db_pass }}"
+        priv: "{{ wp_db_name }}.*:ALL"
+        host: "%"
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Modifier la config pour accepter les connexions externes
+      lineinfile:
+        path: /etc/my.cnf.d/mariadb-server.cnf
+        regexp: '^bind-address'
+        line: 'bind-address=0.0.0.0'
+        backup: yes
+
+    - name: Redémarrer MariaDB pour appliquer la config
+      service:
+        name: mariadb
+        state: restarted
