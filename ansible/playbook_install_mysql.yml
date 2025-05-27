@@ -1,34 +1,43 @@
 ---
-- name: Installer MySQL Server et configurer la base (Red Hat)
+- name: Installer MariaDB Server et configurer la base (Red Hat)
   hosts: mysql
   become: yes
   tasks:
-    - name: Installer MySQL Server
+    - name: Installer MariaDB Server
       yum:
-        name: mysql-server
+        name: mariadb-server
         state: present
         update_cache: yes
+
+    - name: Démarrer et activer le service MariaDB
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
 
     - name: Créer base de données WordPress
       mysql_db:
         name: wordpress
         state: present
+        login_user: root
 
-    - name: Créer un utilisateur wordpress
+    - name: Créer un utilisateur wordpress avec privilèges
       mysql_user:
         name: wp_user
         password: wp_pass
         priv: 'wordpress.*:ALL'
         host: '%'
         state: present
+        login_user: root
 
     - name: Modifier la config pour accepter les connexions externes
       lineinfile:
-        path: /etc/my.cnf
+        path: /etc/my.cnf.d/mariadb-server.cnf
         regexp: '^bind-address'
         line: 'bind-address=0.0.0.0'
+        backup: yes
 
-    - name: Redémarrer MySQL
+    - name: Redémarrer MariaDB pour appliquer la config
       service:
-        name: mysqld
+        name: mariadb
         state: restarted
