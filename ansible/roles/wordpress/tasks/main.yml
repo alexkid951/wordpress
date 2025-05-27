@@ -3,6 +3,7 @@
     name: epel-release
     state: present
   when: ansible_facts['os_family'] == 'RedHat'
+  become: yes
 
 - name: Mettre à jour le cache yum
   yum:
@@ -10,6 +11,7 @@
     state: latest
     update_cache: yes
   when: ansible_facts['os_family'] == 'RedHat'
+  become: yes
 
 - name: Installer les paquets web (RedHat)
   yum:
@@ -20,17 +22,9 @@
       - mariadb
     state: present
   when: ansible_facts['os_family'] == 'RedHat'
+  become: yes
 
-- name: Copier le dossier web entier avec synchronize
-  ansible.builtin.synchronize:
-    src: ansible/web/
-    dest: /var/www/html/wordpress/
-    recursive: yes
-    delete: yes
-  delegate_to: localhost
-  become: false
-
-- name: Copier les fichiers web vers le serveur WordPress (fallback si synchronize n’est pas supporté)
+- name: Copier les fichiers web vers le serveur WordPress
   ansible.builtin.copy:
     src: ../ansible/web/
     dest: /var/www/html/wordpress/
@@ -38,7 +32,7 @@
     group: apache
     mode: '0644'
     recurse: yes
-  when: ansible_facts['os_family'] != 'RedHat'
+  become: yes
 
 - name: Changer les permissions des fichiers web
   ansible.builtin.file:
@@ -46,3 +40,4 @@
     recurse: yes
     owner: apache
     group: apache
+  become: yes
