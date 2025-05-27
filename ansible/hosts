@@ -1,7 +1,7 @@
-[mysql]
-192.168.56.30 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa ansible_python_interpreter=/usr/bin/python3
+[kmaster]
+127.0.0.1 ansible_port=2273 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/kmaster_key ansible_python_interpreter=/usr/bin/python3
 
-[wordpress]
-192.168.56.31 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa ansible_python_interpreter=/usr/bin/python3
-192.168.56.32 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa ansible_python_interpreter=/usr/bin/python3
+[knodes]
+127.0.0.1 ansible_port=2274 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodea_key ansible_python_interpreter=/usr/bin/python3
+127.0.0.1 ansible_port=2275 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodeb_key ansible_python_interpreter=/usr/bin/python3
 
