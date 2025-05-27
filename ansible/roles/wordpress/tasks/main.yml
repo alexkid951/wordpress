@@ -1,34 +1,22 @@
----
-# roles/wordpress/tasks/main.yml
-
-- name: Installer les paquets web (cross-distro)
-  package:
-    name: "{{ (ansible_os_family == 'RedHat') | ternary(web_pkgs_redhat, web_pkgs_debian) }}"
+- name: Installer le dépôt EPEL (RedHat/CentOS)
+  yum:
+    name: epel-release
     state: present
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Mettre à jour le cache yum
+  yum:
+    name: '*'
+    state: latest
     update_cache: yes
+  when: ansible_facts['os_family'] == 'RedHat'
 
-- name: Démarrer et activer le service web
-  service:
-    name: "{{ (ansible_os_family == 'RedHat') | ternary('httpd', 'apache2') }}"
-    state: started
-    enabled: yes
-
-- name: Télécharger WordPress
-  get_url:
-    url: https://wordpress.org/latest.zip
-    dest: /tmp/wordpress.zip
-
-- name: Décompresser WordPress
-  unarchive:
-    src: /tmp/wordpress.zip
-    dest: /var/www/html/
-    remote_src: yes
-
-- name: Définir les permissions sur WordPress
-  file:
-    path: /var/www/html/wordpress
-    state: directory
-    recurse: yes
-    owner: "{{ (ansible_os_family == 'RedHat') | ternary('apache', 'www-data') }}"
-    group: "{{ (ansible_os_family == 'RedHat') | ternary('apache', 'www-data') }}"
-    mode: "0755"
+- name: Installer les paquets web (RedHat)
+  yum:
+    name:
+      - httpd
+      - php
+      - php-mysqlnd
+      - mariadb
+    state: present
+  when: ansible_facts['os_family'] == 'RedHat'
