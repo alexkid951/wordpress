@@ -23,7 +23,7 @@
 
 - name: Copier les fichiers web vers le serveur WordPress
   ansible.builtin.copy:
-    src: ../wordpress/ansible/web/
+    src: ../ansible/web/
     dest: /var/www/html/wordpress/
     owner: www-data   # ou apache selon ta distrib
     group: www-data
