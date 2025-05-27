@@ -21,11 +21,29 @@
     state: present
   when: ansible_facts['os_family'] == 'RedHat'
 
-- name: Copier les fichiers web vers le serveur WordPress
-  ansible.builtin.copy:
-    src: ../ansible/web/
+# - name: Copier les fichiers web vers le serveur WordPress
+#   ansible.builtin.copy:
+#     src: ../ansible/web/
+#     dest: /var/www/html/wordpress/
+#     owner: apache
+#     group: apache
+#     mode: '0644'
+#     recurse: yes
+
+- name: Copier le dossier web entier avec synchronize
+  ansible.builtin.synchronize:
+    src: ansible/web/
     dest: /var/www/html/wordpress/
-    owner: www-data   # ou apache selon ta distrib
-    group: www-data
-    mode: '0644'
+    recursive: yes
+    delete: yes
+  delegate_to: localhost
+
+- name: Changer les permissions des fichiers web
+  ansible.builtin.file:
+    path: /var/www/html/wordpress/
     recurse: yes
+    owner: apache
+    group: apache
+
+
+
