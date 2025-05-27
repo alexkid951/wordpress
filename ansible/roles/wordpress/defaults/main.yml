@@ -1,13 +1,6 @@
----
-# roles/wordpress/defaults/main.yml
-
-# Liste des paquets à installer sur RHEL/CentOS
-web_pkgs_redhat:
-  - httpd       # serveur web Apache
-  - php         # langage PHP
-  - php-mysqlnd # extension PHP pour MariaDB/MySQL
-  - mariadb     # client MariaDB (pour connexion CLI, libs)
-  - unzip       # décompression d’archives ZIP
-  - curl        # téléchargement de fichiers depuis URL
-
+web_packages_redhat:
+  - httpd
+  - php
+  - php-mysqlnd
+  - mariadb
 
