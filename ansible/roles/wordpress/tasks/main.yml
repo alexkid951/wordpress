@@ -1,6 +1,5 @@
 ---
 # roles/wordpress/tasks/main.yml
-# Tâches pour installer et configurer WordPress
 
 - name: Installer les paquets web (cross-distro)
   package:
