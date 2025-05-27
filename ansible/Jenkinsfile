@@ -28,7 +28,7 @@ pipeline {
         stage('Copier les fichiers HTML/CSS/JS') {
             steps {
                 sh '''
-                    ansible wordpress -i ansible/hosts -m copy -a "src=web/ dest=/var/www/html/wordpress/ owner=www-data group=www-data mode=0644" -b
+                    ansible wordpress -i ansible/hosts -m copy -a "src=ansible/web/ dest=/var/www/html/wordpress/ owner=www-data group=www-data mode=0644" -b
                 '''
             }
         }
