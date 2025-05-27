@@ -10,12 +10,4 @@ web_pkgs_redhat:
   - unzip       # décompression d’archives ZIP
   - curl        # téléchargement de fichiers depuis URL
 
-# Liste des paquets à installer sur Debian/Ubuntu
-web_pkgs_debian:
-  - apache2     # serveur web Apache
-  - php         # langage PHP
-  - php-mysql   # extension PHP pour MySQL
-  - mysql-client# client MySQL (CLI)
-  - unzip       # décompression d’archives ZIP
-  - curl        # téléchargement de fichiers depuis URL
 
