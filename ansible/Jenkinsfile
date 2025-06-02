@@ -41,7 +41,7 @@ pipeline {
 
         stage('Vérification du site via LB') {
             steps {
-                sh 'curl -s http://192.168.56.50 | grep -i "wordpress"'
+                sh 'curl -s http://192.168.56.30 | grep -i "wordpress"'
             }
         }
     }
