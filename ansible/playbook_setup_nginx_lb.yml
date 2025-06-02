@@ -1,5 +1,6 @@
-- name: Configurer NGINX Load Balancer
-  hosts: lb
+- name: Déployer le Load Balancer Nginx
+  hosts: loadbalancer
   become: true
   roles:
     - nginx_lb
+
