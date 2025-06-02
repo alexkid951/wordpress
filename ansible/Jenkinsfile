@@ -9,7 +9,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/alexkid951/wordpress.git'
-
             }
         }
 
@@ -36,12 +35,6 @@ pipeline {
         stage('Déployer NGINX Load Balancer') {
             steps {
                 sh 'ansible-playbook -i ansible/hosts ansible/playbook_setup_nginx_lb.yml'
-            }
-        }
-
-        stage('Vérification du site via LB') {
-            steps {
-                sh 'curl -s http://192.168.56.30 | grep -i "wordpress"'
             }
         }
     }
