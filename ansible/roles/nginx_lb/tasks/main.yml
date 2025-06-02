@@ -1,15 +1,45 @@
-- name: Installer NGINX
-  yum:
-    name: nginx
-    state: present
-    update_cache: yes
+- name: Installer et configurer Nginx en load balancer
+  hosts: loadbalancer
+  become: yes
+  tasks:
+    - name: Installer Nginx
+      ansible.builtin.package:
+        name: nginx
+        state: present
 
-- name: Configurer NGINX en reverse proxy
-  template:
-    src: lb.conf.j2
-    dest: /etc/nginx/sites-available/default
+    - name: Configurer Nginx pour le load balancing
+      ansible.builtin.copy:
+        dest: /etc/nginx/conf.d/load_balancer.conf
+        content: |
+          upstream backend_servers {
+              server 192.168.56.30;
+              server 192.168.56.31;
+              server 192.168.56.32;
+          }
 
-- name: Redémarrer NGINX
-  service:
-    name: nginx
-    state: restarted
+          server {
+              listen 80;
+
+              location / {
+                  proxy_pass http://backend_servers;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              }
+          }
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Supprimer la configuration par défaut de Nginx
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      ignore_errors: yes
+
+    - name: Redémarrer Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+        enabled: true
+
