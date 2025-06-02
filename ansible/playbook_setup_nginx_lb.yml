@@ -1,6 +1,6 @@
 - name: Déployer le Load Balancer Nginx
   hosts: loadbalancer
-  become: true
+  become: yes
   roles:
     - nginx_lb
 
