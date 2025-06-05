@@ -1,1 +1,74 @@
 
+- name: Installer SonarQube sur les VMs WordPress
+  hosts: wordpress
+  become: true
+  tasks:
+
+    - name: Installer Java (prérequis pour SonarQube)
+      apt:
+        name: openjdk-17-jdk
+        state: present
+        update_cache: yes
+
+    - name: Créer l'utilisateur sonarqube
+      user:
+        name: sonarqube
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Télécharger SonarQube
+      get_url:
+        url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.4.1.88267.zip
+        dest: /tmp/sonarqube.zip
+
+    - name: Installer unzip s'il n'est pas là
+      apt:
+        name: unzip
+        state: present
+
+    - name: Décompresser SonarQube
+      unarchive:
+        src: /tmp/sonarqube.zip
+        dest: /opt/
+        remote_src: yes
+
+    - name: Renommer le dossier
+      command: mv /opt/sonarqube-* /opt/sonarqube
+
+    - name: Changer le propriétaire
+      file:
+        path: /opt/sonarqube
+        state: directory
+        recurse: yes
+        owner: sonarqube
+        group: sonarqube
+
+    - name: Créer le service systemd pour SonarQube
+      copy:
+        dest: /etc/systemd/system/sonarqube.service
+        content: |
+          [Unit]
+          Description=SonarQube service
+          After=syslog.target network.target
+
+          [Service]
+          Type=forking
+
+          ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh start
+          ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+
+          User=sonarqube
+          Group=sonarqube
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Recharger systemd
+      command: systemctl daemon-reexec
+
+    - name: Activer et démarrer SonarQube
+      systemd:
+        name: sonarqube
+        enabled: yes
+        state: started
