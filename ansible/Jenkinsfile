@@ -37,6 +37,12 @@ pipeline {
                 sh 'ansible-playbook -i ansible/hosts ansible/playbook_setup_nginx_lb.yml'
             }
         }
+
+        stage('Installer SonarQube') {
+            steps {
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_sonarqube.yml'
+            }
+        }
     }
 
     post {
@@ -48,3 +54,5 @@ pipeline {
         }
     }
 }
+
+    
