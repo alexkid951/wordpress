@@ -5,6 +5,7 @@
 192.168.56.31 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodea_key
 192.168.56.32 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodeb_key
 
+
 [loadbalancer]
-192.168.56.30
+192.168.56.30 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/kmaster_key
 
