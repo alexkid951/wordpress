@@ -3,11 +3,18 @@
   become: true
   tasks:
 
+    - name: Installer le dépôt EPEL (nécessaire pour certains paquets)
+      yum:
+        name: epel-release
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
     - name: Installer Java (prérequis pour SonarQube)
       yum:
-        name: openjdk-17-jdk
+        name: java-17-openjdk-devel
         state: present
         update_cache: yes
+      when: ansible_facts['os_family'] == "RedHat"
 
     - name: Créer l'utilisateur sonarqube
       user:
@@ -15,15 +22,16 @@
         shell: /bin/bash
         create_home: yes
 
+    - name: Installer unzip s'il n'est pas là
+      yum:
+        name: unzip
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
     - name: Télécharger SonarQube
       get_url:
         url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.4.1.88267.zip
         dest: /tmp/sonarqube.zip
-
-    - name: Installer unzip s'il n'est pas là
-      apt:
-        name: unzip
-        state: present
 
     - name: Décompresser SonarQube
       unarchive:
@@ -31,8 +39,10 @@
         dest: /opt/
         remote_src: yes
 
-    - name: Renommer le dossier
+    - name: Renommer le dossier SonarQube
       command: mv /opt/sonarqube-* /opt/sonarqube
+      args:
+        removes: /opt/sonarqube
 
     - name: Changer le propriétaire
       file:
