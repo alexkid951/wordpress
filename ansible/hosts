@@ -1,12 +1,15 @@
-[mysql]
-192.168.56.30 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
+[all_hosts]
+mysql ansible_host=192.168.56.30 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
+wordpress1 ansible_host=192.168.56.31 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodea_key
+wordpress2 ansible_host=192.168.56.32 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodeb_key
+loadbalancer ansible_host=192.168.56.30 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
 
+[mysql]
+mysql
 
 [wordpress]
-192.168.56.31 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodea_key
-192.168.56.32 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodeb_key
-
+wordpress1
+wordpress2
 
 [loadbalancer]
-192.168.56.30 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/kmaster_key
-
+loadbalancer
