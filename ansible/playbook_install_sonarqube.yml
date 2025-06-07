@@ -4,7 +4,7 @@
   tasks:
 
     - name: Installer Java (prérequis pour SonarQube)
-      apt:
+      yum:
         name: openjdk-17-jdk
         state: present
         update_cache: yes
