@@ -20,13 +20,13 @@ pipeline {
 
         stage('Déployer MySQL') {
             steps {
-                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_mysql.yml --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant'
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_mysql.yml -u vagrant'
             }
         }
 
         stage('Déployer WordPress') {
             steps {
-                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_wordpress.yml --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant'
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_wordpress.yml -u vagrant'
             }
         }
 
@@ -35,20 +35,20 @@ pipeline {
                 sh '''
                     ansible wordpress -i ansible/hosts -m copy \
                     -a "src=ansible/web/ dest=/var/www/html/wordpress/ owner=apache group=apache mode=0644" \
-                    -b --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant
+                    -b -u vagrant
                 '''
             }
         }
 
         stage('Déployer NGINX Load Balancer') {
             steps {
-                sh 'ansible-playbook -i ansible/hosts ansible/playbook_setup_nginx_lb.yml --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant'
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_setup_nginx_lb.yml -u vagrant'
             }
         }
 
         stage('Installer SonarQube') {
             steps {
-                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_sonarqube.yml --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant'
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_sonarqube.yml -u vagrant'
             }
         }
     }
