@@ -39,10 +39,24 @@
         dest: /opt/
         remote_src: yes
 
-    - name: Renommer le dossier SonarQube
-      command: mv /opt/sonarqube-* /opt/sonarqube
-      args:
-        removes: /opt/sonarqube
+    - name: Trouver le dossier SonarQube extrait
+      find:
+        paths: /opt/
+        patterns: "sonarqube-*"
+        file_type: directory
+      register: sonarqube_dirs
+
+    - name: Supprimer le lien /opt/sonarqube s'il existe
+      file:
+        path: /opt/sonarqube
+        state: absent
+        force: yes
+
+    - name: Créer un lien symbolique /opt/sonarqube vers le dossier extrait
+      file:
+        src: "{{ sonarqube_dirs.files[0].path }}"
+        dest: /opt/sonarqube
+        state: link
 
     - name: Changer le propriétaire
       file:
