@@ -12,35 +12,43 @@ pipeline {
             }
         }
 
+        stage('Test SSH depuis Jenkins') {
+            steps {
+                sh 'ssh -i /var/lib/jenkins/.ssh/id_rsa -o StrictHostKeyChecking=no vagrant@192.168.56.30 "echo ✅ Connexion SSH OK depuis Jenkins"'
+            }
+        }
+
         stage('Déployer MySQL') {
             steps {
-                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_mysql.yml'
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_mysql.yml --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant'
             }
         }
 
         stage('Déployer WordPress') {
             steps {
-                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_wordpress.yml'
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_wordpress.yml --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant'
             }
         }
 
         stage('Copier les fichiers HTML/CSS/JS') {
             steps {
                 sh '''
-                    ansible wordpress -i ansible/hosts -m copy -a "src=ansible/web/ dest=/var/www/html/wordpress/ owner=apache group=apache mode=0644" -b
+                    ansible wordpress -i ansible/hosts -m copy \
+                    -a "src=ansible/web/ dest=/var/www/html/wordpress/ owner=apache group=apache mode=0644" \
+                    -b --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant
                 '''
             }
         }
 
         stage('Déployer NGINX Load Balancer') {
             steps {
-                sh 'ansible-playbook -i ansible/hosts ansible/playbook_setup_nginx_lb.yml'
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_setup_nginx_lb.yml --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant'
             }
         }
 
         stage('Installer SonarQube') {
             steps {
-                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_sonarqube.yml'
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_sonarqube.yml --private-key=/var/lib/jenkins/.ssh/id_rsa -u vagrant'
             }
         }
     }
@@ -54,5 +62,3 @@ pipeline {
         }
     }
 }
-
-    
