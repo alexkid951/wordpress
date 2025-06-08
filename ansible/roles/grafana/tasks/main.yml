@@ -1,1 +1,148 @@
+---
+- name: Installer Prometheus et Grafana sur Red Hat
+  hosts: grafana_nodes
+  become: true
+  vars:
+    prometheus_version: "2.52.0"
+    prometheus_user: prometheus
 
+  tasks:
+    - name: Installer les dépendances système
+      yum:
+        name:
+          - wget
+          - tar
+          - curl
+          - gnupg2
+          - policycoreutils
+        state: present
+
+    - name: Créer l'utilisateur Prometheus
+      user:
+        name: "{{ prometheus_user }}"
+        shell: /sbin/nologin
+
+    - name: Télécharger Prometheus
+      get_url:
+        url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+        dest: /tmp/prometheus.tar.gz
+
+    - name: Extraire Prometheus
+      unarchive:
+        src: /tmp/prometheus.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Copier les binaires Prometheus
+      copy:
+        remote_src: yes
+        src: "/opt/prometheus-{{ prometheus_version }}.linux-amd64/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        mode: '0755'
+      loop:
+        - prometheus
+        - promtool
+
+    - name: Créer les répertoires Prometheus
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ prometheus_user }}"
+        group: "{{ prometheus_user }}"
+      loop:
+        - /etc/prometheus
+        - /var/lib/prometheus
+
+    - name: Copier la configuration Prometheus
+      copy:
+        dest: /etc/prometheus/prometheus.yml
+        content: |
+          global:
+            scrape_interval: 15s
+          scrape_configs:
+            - job_name: 'prometheus'
+              static_configs:
+                - targets: ['localhost:9090']
+        owner: "{{ prometheus_user }}"
+        group: "{{ prometheus_user }}"
+        mode: '0644'
+
+    - name: Créer le service systemd de Prometheus
+      copy:
+        dest: /etc/systemd/system/prometheus.service
+        content: |
+          [Unit]
+          Description=Prometheus
+          Wants=network-online.target
+          After=network-online.target
+
+          [Service]
+          User=prometheus
+          Group=prometheus
+          Type=simple
+          ExecStart=/usr/local/bin/prometheus \
+            --config.file=/etc/prometheus/prometheus.yml \
+            --storage.tsdb.path=/var/lib/prometheus
+
+          [Install]
+          WantedBy=multi-user.target
+        mode: '0644'
+
+    - name: Activer et démarrer Prometheus
+      systemd:
+        name: prometheus
+        enabled: true
+        state: started
+
+    - name: Ajouter le repo Grafana OSS
+      get_url:
+        url: https://packages.grafana.com/gpg.key
+        dest: /etc/pki/rpm-gpg/grafana.key
+
+    - name: Ajouter le fichier repo Grafana
+      copy:
+        dest: /etc/yum.repos.d/grafana.repo
+        content: |
+          [grafana]
+          name=Grafana OSS
+          baseurl=https://packages.grafana.com/oss/rpm
+          repo_gpgcheck=1
+          enabled=1
+          gpgcheck=1
+          gpgkey=file:///etc/pki/rpm-gpg/grafana.key
+          sslverify=1
+          sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+
+    - name: Installer Grafana
+      yum:
+        name: grafana
+        state: present
+
+    - name: Activer et démarrer Grafana
+      systemd:
+        name: grafana-server
+        enabled: true
+        state: started
+
+    - name: Attendre que Grafana soit disponible
+      wait_for:
+        port: 3000
+        delay: 5
+        timeout: 30
+
+    - name: Ajouter Prometheus comme datasource dans Grafana
+      uri:
+        url: http://localhost:3000/api/datasources
+        method: POST
+        user: admin
+        password: admin
+        force_basic_auth: yes
+        headers:
+          Content-Type: application/json
+        body_format: json
+        body:
+          name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://localhost:9090
+        status_code: 200,409  # 409 = conflit si datasource déjà existante
