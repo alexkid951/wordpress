@@ -51,6 +51,12 @@ pipeline {
                 sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_sonarqube.yml -u vagrant'
             }
         }
+
+        stage('Déployer Grafana') {
+            steps {
+                sh 'ansible-playbook -i ansible/hosts ansible/playbook_install_grafana.yml -u vagrant --limit grafana_nodes'
+            }
+        }
     }
 
     post {
