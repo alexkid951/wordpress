@@ -3,6 +3,9 @@ mysql ansible_host=192.168.56.30 ansible_user=vagrant ansible_ssh_private_key_fi
 wordpress1 ansible_host=192.168.56.31 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodea_key
 wordpress2 ansible_host=192.168.56.32 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/knodeb_key
 loadbalancer ansible_host=192.168.56.30 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
+grafana1 ansible_host=192.168.56.30 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
+grafana2 ansible_host=192.168.56.31 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
+grafana3 ansible_host=192.168.56.32 ansible_user=vagrant ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/id_rsa
 
 [mysql]
 mysql
@@ -13,3 +16,8 @@ wordpress2
 
 [loadbalancer]
 loadbalancer
+
+[grafana_nodes]
+grafana1
+grafana2
+grafana3
